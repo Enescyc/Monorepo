@@ -10,19 +10,15 @@ export interface User extends BaseEntity {
   email: string;
   username: string;
   password: string;
-  profile: UserProfile;
-  isEmailVerified: boolean;
-  lastLoginAt?: number;
-}
-
-export interface UserProfile extends User {
-  languages: Language[];
-  premium: Premium;
-  settings: UserSettings;
   sessions: PracticeSession[];
-  words: Word[];
   achievements: Achievement[];
   progress: UserProgress;
+  words: Word[];
+  settings: UserSettings;
+  premium: Premium;
+  languages: Language[];
+  isEmailVerified: boolean;
+  lastLoginAt?: number;
 }
 
 export interface UserProgress {

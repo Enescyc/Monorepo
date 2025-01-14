@@ -39,6 +39,7 @@ export interface PracticeWord {
   performance: PracticeWordPerformance;
   timeSpent: number;
   attempts: number;
+  metadata: Record<string, any>;
 }
 
 export enum PracticeWordPerformance {

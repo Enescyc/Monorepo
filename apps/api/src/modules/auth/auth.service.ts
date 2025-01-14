@@ -1,9 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
-import { AuthResponse } from '@vocabuddy/types';
+import { AuthResponse, Difficulty, FontScale, Theme } from '@vocabuddy/types';
+import { UsersService } from '../users/users.service';
+import { LoginDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,16 +22,16 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User): Promise<AuthResponse> {
+  async login(dto: LoginDto): Promise<AuthResponse> {
+    const user = await this.usersService.findByEmail(dto?.email);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
     const payload = { email: user.email, sub: user.id };
+    const { password, ...userWithoutPassword } = user;
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        isPremium: user.isPremium,
-      },
+      user: userWithoutPassword as any, // TODO: fix this
     };
   }
 
@@ -45,8 +46,69 @@ export class AuthService {
       email,
       password: hashedPassword,
       username,
+      name: username,
+      languages: [],
+      premium: {
+        isActive: false,
+        plan: 'free',
+        features: [],
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+      settings: {
+        dailyGoal: 0,
+        studyReminders: {
+          enabled: false,
+          times: [],
+          days: []
+        },
+        learningStyle: [],
+        difficulty: Difficulty.EASY,
+        notifications: {
+          enabled: false,
+          times: [],
+          days: []
+        },
+        theme: Theme.LIGHT,
+        fontScale: FontScale.SMALL,
+        metadata: {
+          lastActive: new Date(),
+          deviceInfo: {
+            platform: '',
+            version: '',
+            devices: []
+          }
+        }
+      },
+      progress: {
+        overall: {
+          totalWords: 0,
+          masteredWords: 0,
+          wordsInProgress: 0,
+          totalStudyTime: 0
+        },
+        streak: {
+          current: 0,
+          longest: 0,
+          lastStudyDate: new Date()
+        },
+        xp: {
+          total: 0,
+          level: 0,
+          currentLevelProgress: 0
+        }
+      },
+      isEmailVerified: false,
+      achievements: [],
+      metadata: {
+        lastActive: new Date(),
+        deviceInfo: {
+          platform: '',
+          version: '',
+          devices: []
+        }
+      }
     });
 
-    return this.login(user);
+    return this.login({ email, password });
   }
 } 

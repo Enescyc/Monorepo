@@ -1,20 +1,34 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // Enable CORS
+  app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
-  
-  // Global prefix
-  app.setGlobalPrefix(process.env.API_PREFIX || 'api/v1');
-  
-  // Start the server
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  
-  console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`API Documentation available at: http://localhost:${port}/docs`);
+
+  const config = new DocumentBuilder()
+    .setTitle('VocaBuddy API')
+    .setDescription('The VocaBuddy API documentation')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
+  await app.listen(3001);
 }
 bootstrap(); 

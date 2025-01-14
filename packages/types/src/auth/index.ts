@@ -2,12 +2,7 @@ import { User } from '../user';
 
 export interface AuthResponse {
   access_token: string;
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    isPremium: boolean;
-  };
+  user: User;
 }
 
 export interface JwtPayload {

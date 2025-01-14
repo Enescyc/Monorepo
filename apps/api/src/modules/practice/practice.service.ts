@@ -1,111 +1,123 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Practice, PracticeType } from './entities/practice.entity';
-import { CreatePracticeDto } from './dto/create-practice.dto';
+import { PracticeSession } from './entities/practice.entity';
 import { WordsService } from '../words/words.service';
+import { CreatePracticeSessionDto, UpdatePracticeSessionDto } from './dto/practice.dto';
+import { PracticeSessionType, PracticeWordPerformance, PracticeWord } from '@vocabuddy/types';
 
 @Injectable()
 export class PracticeService {
   constructor(
-    @InjectRepository(Practice)
-    private readonly practiceRepository: Repository<Practice>,
+    @InjectRepository(PracticeSession)
+    private readonly sessionRepository: Repository<PracticeSession>,
     private readonly wordsService: WordsService,
   ) {}
 
-  async create(userId: string, createPracticeDto: CreatePracticeDto): Promise<Practice> {
-    // Verify word exists and belongs to user
-    await this.wordsService.findOne(userId, createPracticeDto.wordId);
-
-    const practice = this.practiceRepository.create({
-      ...createPracticeDto,
+  async createSession(
+    createPracticeSessionDto: CreatePracticeSessionDto,
+    userId: string,
+  ): Promise<PracticeSession> {
+    const session = this.sessionRepository.create({
+      ...createPracticeSessionDto,
       userId,
-      completedAt: new Date(),
     });
-
-    const savedPractice = await this.practiceRepository.save(practice);
-
-    // Update word mastery level based on practice result
-    await this.wordsService.updateMasteryLevel(
-      userId,
-      createPracticeDto.wordId,
-      createPracticeDto.score,
-    );
-
-    return savedPractice;
+    return await this.sessionRepository.save(session);
   }
 
-  async findAll(userId: string): Promise<Practice[]> {
-    return await this.practiceRepository.find({
+  async findAllSessions(userId: string): Promise<PracticeSession[]> {
+    return await this.sessionRepository.find({
       where: { userId },
-      order: { completedAt: 'DESC' },
-      relations: ['word'],
+      order: { createdAt: 'DESC' },
     });
   }
 
-  async findByWord(userId: string, wordId: string): Promise<Practice[]> {
-    return await this.practiceRepository.find({
-      where: { userId, wordId },
-      order: { completedAt: 'DESC' },
+  async findSessionById(id: string, userId: string): Promise<PracticeSession> {
+    const session = await this.sessionRepository.findOne({
+      where: { id, userId },
     });
+    if (!session) {
+      throw new NotFoundException(`Practice session with ID ${id} not found`);
+    }
+    return session;
   }
 
-  async getStatistics(userId: string) {
-    const practices = await this.practiceRepository.find({
-      where: { userId },
-      relations: ['word'],
-    });
-
-    return {
-      totalPractices: practices.length,
-      byType: this.groupByType(practices),
-      averageScore: this.calculateAverageScore(practices),
-      practiceStreak: this.calculateStreak(practices),
-      recentActivity: this.getRecentActivity(practices),
-    };
+  async updateSession(
+    id: string,
+    updatePracticeSessionDto: UpdatePracticeSessionDto,
+    userId: string,
+  ): Promise<PracticeSession> {
+    const session = await this.findSessionById(id, userId);
+    Object.assign(session, updatePracticeSessionDto);
+    return await this.sessionRepository.save(session);
   }
 
-  private groupByType(practices: Practice[]) {
-    return practices.reduce((acc, practice) => {
-      acc[practice.type] = (acc[practice.type] || 0) + 1;
-      return acc;
-    }, {} as Record<PracticeType, number>);
+  async removeSession(id: string, userId: string): Promise<void> {
+    const session = await this.findSessionById(id, userId);
+    await this.sessionRepository.remove(session);
   }
 
-  private calculateAverageScore(practices: Practice[]) {
-    if (practices.length === 0) return 0;
-    const totalScore = practices.reduce((sum, practice) => sum + practice.score, 0);
-    return totalScore / practices.length;
-  }
-
-  private calculateStreak(practices: Practice[]) {
-    if (practices.length === 0) return 0;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  async recordWordPractice(
+    sessionId: string,
+    wordId: string,
+    userId: string,
+    performance: PracticeWordPerformance,
+    timeSpent: number,
+    metadata?: Record<string, any>,
+  ): Promise<PracticeSession> {
+    const session = await this.findSessionById(sessionId, userId);
+    const word = await this.wordsService.findOne(wordId, userId);
     
-    let streak = 0;
-    let currentDate = today;
-
-    while (true) {
-      const practicesOnDate = practices.some(practice => {
-        const practiceDate = new Date(practice.completedAt);
-        practiceDate.setHours(0, 0, 0, 0);
-        return practiceDate.getTime() === currentDate.getTime();
-      });
-
-      if (!practicesOnDate) break;
-      
-      streak += 1;
-      currentDate.setDate(currentDate.getDate() - 1);
+    const wordIndex = session.words.findIndex(w => w.wordId === wordId);
+    if (wordIndex === -1) {
+      throw new NotFoundException(`Word with ID ${wordId} not found in session`);
     }
 
-    return streak;
+    session.words[wordIndex] = {
+      ...session.words[wordIndex],
+      performance,
+      timeSpent,
+      metadata: metadata || {},
+      attempts: (session.words[wordIndex].attempts || 0) + 1
+    } as PracticeWord;
+
+    return await this.sessionRepository.save(session);
   }
 
-  private getRecentActivity(practices: Practice[]) {
-    return practices
-      .sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime())
-      .slice(0, 10);
+  async getWordPracticeHistory(wordId: string, userId: string): Promise<PracticeWord[]> {
+    const sessions = await this.sessionRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+
+    return sessions
+      .map(session => session.words.find(w => w.wordId === wordId))
+      .filter((word): word is PracticeWord => word !== undefined);
+  }
+
+  async getUserPracticeStats(userId: string): Promise<{
+    totalSessions: number;
+    totalTimeSpent: number;
+    averageScore: number;
+    practicesByType: Record<PracticeSessionType, number>;
+  }> {
+    const sessions = await this.sessionRepository.find({
+      where: { userId },
+    });
+
+    const practicesByType = sessions.reduce((acc, session) => {
+      acc[session.sessionType] = (acc[session.sessionType] || 0) + 1;
+      return acc;
+    }, {} as Record<PracticeSessionType, number>);
+
+    const totalTimeSpent = sessions.reduce((sum, session) => sum + session.duration, 0);
+    const averageScore = sessions.reduce((sum, session) => sum + session.score, 0) / sessions.length || 0;
+
+    return {
+      totalSessions: sessions.length,
+      totalTimeSpent,
+      averageScore,
+      practicesByType,
+    };
   }
 } 

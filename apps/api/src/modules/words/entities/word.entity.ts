@@ -1,41 +1,48 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
-import { LearningStatus } from '@vocabuddy/types';
+import { Context, Etymology, Learning, LearningStatus, SynonymsAntonyms, Translation, WordCategory, WordType } from '@vocabuddy/types';
 
 @Entity('words')
 export class Word extends BaseEntity {
   @Column()
   word: string;
 
-  @Column()
-  definition: string;
+  @Column('jsonb', { array: true, default: [] })
+  translations: Translation[];
 
-  @Column({ type: 'text', array: true, default: [] })
+  @Column({ nullable: true })
+  pronunciation: string;
+
+  @Column('enum', { enum: WordType, array: true })
+  wordType: WordType[];
+
+  @Column('jsonb', { array: true })
+  definitions: {
+    partOfSpeech: string;
+    meaning: string;
+    examples: string[];
+  }[];
+
+  @Column('text', { array: true, default: [] })
   examples: string[];
 
-  @Column({ type: 'text', array: true, default: [] })
-  synonyms: string[];
+  @Column('jsonb', { array: true })
+  category: WordCategory[];
 
-  @Column({ type: 'text', array: true, default: [] })
-  antonyms: string[];
+  @Column('jsonb')
+  context: Context;
 
-  @Column({ type: 'enum', enum: LearningStatus, default: LearningStatus.NEW })
-  status: LearningStatus;
+  @Column('jsonb')
+  etymology: Etymology;
 
-  @Column({ type: 'int', default: 0 })
-  practiceCount: number;
+  @Column('jsonb')
+  synonymsAntonyms: SynonymsAntonyms;
 
-  @Column({ type: 'float', default: 0 })
-  masteryLevel: number;
+  @Column('jsonb')
+  learning: Learning;
 
-  @Column({ type: 'timestamp', nullable: true })
-  lastPracticedAt?: Date;
-
-  @Column({ type: 'jsonb', default: {} })
-  metadata: Record<string, any>;
-
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, user => user.words, { onDelete: 'CASCADE' })
   user: User;
 
   @Column()
