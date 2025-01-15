@@ -131,11 +131,10 @@ export class OpenAIService implements AIProvider, OnModuleInit {
             nextReview: new Date(),
             lastStudied: new Date(),
           },
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
+          createdAt: new Date().getTime(),
+          updatedAt: new Date().getTime(),
         },
       };
-      console.log(JSON.stringify(wordResponse));
 
       await this.setInCache(cacheKey, wordResponse, this.CACHE_TTL);
       return wordResponse;
@@ -198,7 +197,7 @@ export class OpenAIService implements AIProvider, OnModuleInit {
     return `Generate a detailed word explanation in ${context.appLanguage} for the word "${context.word}".
     Target languages: ${context.targetLanguages.join(', ')}
     Native language: ${context.nativeLanguage}
-    Learning styles: ${context.learningStyles.join(', ')}
+    Learning styles: ${context.learningStyles}
     Difficulty: ${context.difficulty}
     Word types: ${Object.values(WordType).join(', ') || 'any appropriate type'}
     Word categories: ${WordCategories?.map((category: WordCategory) => `${category.name}: ${category.description}`).join(', ') || 'any appropriate category'}
@@ -247,7 +246,7 @@ export class OpenAIService implements AIProvider, OnModuleInit {
     7. Include comprehensive context information
     8. Research and provide etymology if available
     9. List at least 3 synonyms and antonyms if applicable
-    10. Adapt examples and tips to the user's learning styles: ${context.learningStyles.join(', ')}
+    10. Adapt examples and tips to the user's learning styles: ${context.learningStyles}
     11. Ensure all content matches the difficulty level: ${context.difficulty}
 
     Format the response as a valid JSON object that exactly matches the interface structure.`;

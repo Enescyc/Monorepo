@@ -11,6 +11,7 @@ import {
   LearningStyle,
   Difficulty,
   WordType,
+  ProficiencyLevel,
 } from '@vocabuddy/types';
 
 jest.mock('openai');
@@ -163,7 +164,14 @@ describe('OpenAIService', () => {
       word: 'test',
       userId: '1',
       appLanguage: 'en',
-      targetLanguages: ['es'],
+      targetLanguages: [{
+        name: 'English',
+        code: 'en',
+        native: false,
+        proficiency: ProficiencyLevel.A1,
+        startedAt: new Date(),
+        lastStudied: new Date(),
+      }],
       nativeLanguage: 'en',
       learningStyles: [LearningStyle.VISUAL],
       difficulty: Difficulty.EASY,

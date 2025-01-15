@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { User } from './entities/user.entity';
 import { NotFoundException } from '@nestjs/common';
+import { PremiumPlan } from '@vocabuddy/types';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -54,7 +55,7 @@ describe('UsersController', () => {
         languages: [],
         premium: {
           isActive: false,
-          plan: 'free',
+          plan: PremiumPlan.FREE,
           expiresAt: new Date(),
           features: [],
         },

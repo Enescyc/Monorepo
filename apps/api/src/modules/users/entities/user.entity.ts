@@ -1,9 +1,10 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Exclude } from 'class-transformer';
-import { Language, UserSettings, UserProgress } from '@vocabuddy/types';
+import { Language, UserSettings, UserProgress, LanguageType, LANGUAGES } from '@vocabuddy/types';
 import { Word } from '../../words/entities/word.entity';
 import { PracticeSession } from '../../practice/entities/practice.entity';
+import { Premium, PremiumPlan } from '@vocabuddy/types/dist/premium';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -20,21 +21,49 @@ export class User extends BaseEntity {
   @Exclude()
   password: string;
 
-  @Column('jsonb', { array: true, default: [] })
+  @Column('jsonb', { default: [] })
   languages: Language[];
 
-  @Column('jsonb')
-  premium: {
-    isActive: boolean;
-    plan: string;
-    expiresAt: Date;
-    features: string[];
-  };
+  @Column('jsonb', {
+    default: {
+      isActive: false,
+      plan: PremiumPlan.FREE,
+      expiresAt: null,
+      features: [],
+    },
+  })
+  premium: Premium;
 
-  @Column('jsonb')
+  @Column('jsonb', {
+    default: {
+      theme: 'light',
+      notifications: true,
+      emailNotifications: true,
+      soundEffects: true,
+    },
+  })
   settings: UserSettings;
 
-  @Column('jsonb')
+  @Column('jsonb', {
+    default: {
+      overall: {
+        totalWords: 0,
+        masteredWords: 0,
+        wordsInProgress: 0,
+        totalStudyTime: 0,
+      },
+      streak: {
+        current: 0,
+        longest: 0,
+        lastStudyDate: new Date(),
+      },
+      xp: {
+        total: 0,
+        level: 1,
+        currentLevelProgress: 0,
+      },
+    },
+  })
   progress: UserProgress;
 
   @Column({ default: false })
@@ -43,7 +72,16 @@ export class User extends BaseEntity {
   @Column({ type: 'timestamp', nullable: true })
   lastLoginAt?: Date;
 
-  @Column('jsonb', { default: {} })
+  @Column('jsonb', {
+    default: {
+      lastActive: new Date(),
+      deviceInfo: {
+        platform: '',
+        version: '',
+        devices: [],
+      },
+    },
+  })
   metadata: {
     lastActive: Date;
     deviceInfo: {
@@ -59,7 +97,7 @@ export class User extends BaseEntity {
   @OneToMany(() => PracticeSession, session => session.user)
   sessions: PracticeSession[];
 
-  @Column('jsonb', { array: true, default: [] })
+  @Column('jsonb', { default: [] })
   achievements: {
     id: string;
     name: string;
@@ -69,4 +107,7 @@ export class User extends BaseEntity {
     category: string;
     icon: string;
   }[];
+
+  @Column({ default: LANGUAGES.ENGLISH })
+  appLanguage: LanguageType;
 } 

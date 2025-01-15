@@ -2,10 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } f
 import { WordsService } from './words.service';
 import { CreateWordDto, UpdateWordDto } from './dto/word.dto';
 import { Word } from './entities/word.entity';
-import { WordType, LearningStatus } from '@vocabuddy/types';
+import { WordType, LearningStatus, PaginationParams, PaginatedResponse } from '@vocabuddy/types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../../common/decorators/user.decorator';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('words')
 @ApiBearerAuth('JWT-auth')
@@ -45,33 +45,51 @@ export class WordsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all words for user' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'sortBy', required: false, type: String })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'] })
   @ApiResponse({
     status: 200,
     description: 'List of words',
     schema: {
-      example: [{
-        id: "123e4567-e89b-12d3-a456-426614174000",
-        word: "hello",
-        translation: "merhaba",
-        wordType: "NOUN",
-        examples: ["Hello, how are you?"],
-        definition: "Used as a greeting",
-        pronunciation: "həˈləʊ",
-        difficulty: "BEGINNER",
-        learning: {
-          status: "NEW",
-          lastReviewed: "2024-01-01T00:00:00Z",
-          nextReview: "2024-01-02T00:00:00Z",
-          confidence: 0,
-          streak: 0
-        },
-        createdAt: "2024-01-01T00:00:00Z",
-        updatedAt: "2024-01-01T00:00:00Z"
-      }]
+      example: {
+        data: [{
+          id: "123e4567-e89b-12d3-a456-426614174000",
+          word: "hello",
+          translation: "merhaba",
+          wordType: "NOUN",
+          examples: ["Hello, how are you?"],
+          definition: "Used as a greeting",
+          pronunciation: "həˈləʊ",
+          difficulty: "BEGINNER",
+          learning: {
+            status: "NEW",
+            lastReviewed: "2024-01-01T00:00:00Z",
+            nextReview: "2024-01-02T00:00:00Z",
+            confidence: 0,
+            streak: 0
+          },
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z"
+        }],
+        meta: {
+          page: 1,
+          limit: 10,
+          total: 100,
+          totalPages: 10,
+          hasNextPage: true,
+          hasPreviousPage: false
+        }
+      }
     }
   })
-  async findAll(@User('id') userId: string): Promise<Word[]> {
-    return await this.wordsService.findAll(userId);
+  async findAll(
+    @User('id') userId: string,
+    @Query() query: PaginationParams
+  ): Promise<PaginatedResponse<Word>> {
+    return await this.wordsService.findAllPaginated(userId, query);
   }
 
   @Get('type/:type')

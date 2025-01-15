@@ -1,5 +1,5 @@
 import { IsString, IsEmail, IsOptional, IsBoolean, IsObject, IsArray, IsDate } from 'class-validator';
-import { Language, UserSettings, UserProgress } from '@vocabuddy/types';
+import { Language, UserSettings, UserProgress, Premium } from '@vocabuddy/types';
 
 export class CreateUserDto {
   @IsString()
@@ -20,12 +20,7 @@ export class CreateUserDto {
 
   @IsObject()
   @IsOptional()
-  premium: {
-    isActive: boolean;
-    plan: string;
-    expiresAt: Date;
-    features: string[];
-  };
+  premium: Premium;
 
   @IsObject()
   @IsOptional()

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Word } from './entities/word.entity';
 import { CreateWordDto, UpdateWordDto } from './dto/word.dto';
-import { WordType, LearningStatus, Language, LearningStyle } from '@vocabuddy/types';
+import { WordType, LearningStatus, Language, LearningStyle, ProficiencyLevel, PaginationParams, PaginatedResponse } from '@vocabuddy/types';
 import OpenAI from 'openai';
 import { OpenAIService } from '../ai/services/openai.service';
 import { UsersService } from '../users/users.service';
@@ -20,14 +20,18 @@ export class WordsService {
 
   public async create(createWordDto: CreateWordDto, userId: string): Promise<Word> {
     const user : User = await this.userService.findOne(userId);
+    if(!user) {
+        throw new NotFoundException('User not found');
+    }
+  
     const generatedWord = await this.openaiService.generateWord({
         word: createWordDto.word,
-        nativeLanguage: user.languages.find(language => language.native)?.name as string,
-        targetLanguages: user.languages.filter(language => !language.native).map(language => language.name) as string[],
+        nativeLanguage: createWordDto.nativeLanguage,
+        targetLanguages: createWordDto.targetLanguages,
         userId,
-        learningStyles: user.settings.learningStyle,
-        difficulty: user.settings.difficulty,
-        appLanguage: user.languages.find(language => language.native)?.name as string,
+        learningStyles: createWordDto.learningStyle,
+        difficulty: createWordDto.difficulty,
+        appLanguage: user.appLanguage,
     });
     if(!generatedWord.word) {
         throw new BadRequestException('Failed to generate word');
@@ -91,5 +95,39 @@ export class WordsService {
     const word = await this.findOne(id, userId);
     word.learning = { ...word.learning, ...progress };
     return await this.wordRepository.save(word);
+  }
+
+  async findAllPaginated(userId: string, params: PaginationParams): Promise<PaginatedResponse<Word>> {
+    const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'DESC' } = params;
+    
+    const queryBuilder = this.wordRepository.createQueryBuilder('word')
+      .where('word.userId = :userId', { userId });
+
+    if (search) {
+      queryBuilder.andWhere('(word.word ILIKE :search OR word.translations::text ILIKE :search)', 
+        { search: `%${search}%` });
+    }
+
+    const total = await queryBuilder.getCount();
+    
+    queryBuilder
+      .orderBy(`word.${sortBy}`, sortOrder)
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const words = await queryBuilder.getMany();
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: words,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1
+      }
+    };
   }
 } 

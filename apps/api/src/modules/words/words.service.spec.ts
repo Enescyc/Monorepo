@@ -7,7 +7,7 @@ import { CreateWordDto, UpdateWordDto } from './dto/word.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { OpenAIService } from '../ai/services/openai.service';
 import { UsersService } from '../users/users.service';
-import { WordType, LearningStatus, Language, LearningStyle, Difficulty } from '@vocabuddy/types';
+import { WordType, LearningStatus, LearningStyle, Difficulty, ProficiencyLevel } from '@vocabuddy/types';
 
 describe('WordsService', () => {
   let service: WordsService;
@@ -99,7 +99,16 @@ describe('WordsService', () => {
       word: 'test',
       userId: '1',
       nativeLanguage: 'English',
-      targetLanguages: ['Spanish'],
+      targetLanguages: [
+        {
+          name: 'English',
+          code: 'en',
+          native: false,
+          proficiency: ProficiencyLevel.A1,
+          startedAt: new Date(),
+          lastStudied: new Date(),
+        }
+      ],
       learningStyle: [LearningStyle.VISUAL],
       difficulty: Difficulty.EASY,
       appLanguage: 'English',

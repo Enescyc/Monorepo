@@ -1,9 +1,11 @@
 import { BaseEntity } from '../common/base';
-import { Language, ProficiencyLevel, UserSettings } from '../settings';
+import { UserSettings } from '../settings';
 import { Premium } from '../premium';
 import { Word } from '../word';
 import { Achievement } from '../achievement';
 import { PracticeSession } from '../practice';
+import { LanguageType } from '../util';
+import { Language } from '../language';
 
 export interface User extends BaseEntity {
   name: string;
@@ -19,6 +21,7 @@ export interface User extends BaseEntity {
   languages: Language[];
   isEmailVerified: boolean;
   lastLoginAt?: number;
+  appLanguage: LanguageType;
 }
 
 export interface UserProgress {

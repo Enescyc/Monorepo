@@ -4,7 +4,7 @@ import { WordsService } from './words.service';
 import { CreateWordDto, UpdateWordDto } from './dto/word.dto';
 import { Word } from './entities/word.entity';
 import { NotFoundException } from '@nestjs/common';
-import { WordType, LearningStatus, LearningStyle, Difficulty } from '@vocabuddy/types';
+import { WordType, LearningStatus, LearningStyle, Difficulty, ProficiencyLevel } from '@vocabuddy/types';
 
 // Mock the User decorator
 jest.mock('../../common/decorators/user.decorator', () => ({
@@ -77,8 +77,15 @@ describe('WordsController', () => {
     const createWordDto: CreateWordDto = {
       word: 'test',
       userId: '1',
-      nativeLanguage: 'English',
-      targetLanguages: ['Spanish'],
+      nativeLanguage: 'Turkish',
+      targetLanguages: [{
+        name: 'English',
+        code: 'en',
+        native: false,
+        proficiency: ProficiencyLevel.A1,
+        startedAt: new Date(),
+        lastStudied: new Date(),
+      }],
       learningStyle: [LearningStyle.VISUAL],
       difficulty: Difficulty.EASY,
       appLanguage: 'English',
@@ -99,10 +106,10 @@ describe('WordsController', () => {
       const words = [mockWord];
       mockWordsService.findAll.mockResolvedValue(words);
 
-      const result = await controller.findAll(userId);
+      const result = await controller.findAll(userId, { page: 1, limit: 10 });
 
       expect(result).toEqual(words);
-      expect(service.findAll).toHaveBeenCalledWith(userId);
+      expect(service.findAll).toHaveBeenCalledWith(userId, { page: 1, limit: 10 });
     });
   });
 

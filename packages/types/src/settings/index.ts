@@ -1,13 +1,5 @@
 import { UserMetadata } from '../user';
-
-export interface Language {
-  name: string;
-  code: string;
-  native: boolean;
-  proficiency: ProficiencyLevel;
-  startedAt: Date;
-  lastStudied: Date;
-}
+import { Language } from '../language';
 
 export interface UserSettings {
   dailyGoal: number;
@@ -22,6 +14,16 @@ export interface UserSettings {
   theme: Theme;
   fontScale: FontScale;
   metadata: UserMetadata;
+  // Profile settings
+  bio?: string;
+  location?: string;
+  nativeLanguage?: string;
+  avatar?: string;
+  socialLinks?: {
+    twitter?: string;
+    github?: string;
+    linkedin?: string;
+  };
 }
 
 export interface NotificationSettings {
@@ -41,15 +43,6 @@ export enum LearningStyle {
   AUDITORY = 'auditory',
   READING = 'reading',
   KINESTHETIC = 'kinesthetic'
-}
-
-export enum ProficiencyLevel {
-  A1 = 'A1',
-  A2 = 'A2',
-  B1 = 'B1',
-  B2 = 'B2',
-  C1 = 'C1',
-  C2 = 'C2'
 }
 
 export enum Difficulty {

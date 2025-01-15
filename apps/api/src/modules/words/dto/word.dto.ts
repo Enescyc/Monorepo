@@ -1,5 +1,5 @@
 import { IsString, IsArray, IsObject, IsOptional, IsEnum } from 'class-validator';
-import { WordType, Translation, Context, Etymology, Learning, SynonymsAntonyms, WordCategory, LearningStyle, Difficulty, Language } from '@vocabuddy/types';
+import { WordType, Translation, Context, Etymology, SynonymsAntonyms, WordCategory, LearningStyle, Difficulty, Language, Learning } from '@vocabuddy/types';
 
 export class CreateWordDto {
     @IsString()
@@ -12,7 +12,7 @@ export class CreateWordDto {
     nativeLanguage: string;
 
     @IsArray()
-    targetLanguages: string[];
+    targetLanguages: Language[];
 
     @IsString()
     learningStyle: LearningStyle[];

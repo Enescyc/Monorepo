@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
-import { AuthResponse, Difficulty, FontScale, Theme } from '@vocabuddy/types';
+import { AuthResponse, Difficulty, FontScale, PremiumPlan, Theme } from '@vocabuddy/types';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/auth.dto';
 
@@ -50,9 +50,9 @@ export class AuthService {
       languages: [],
       premium: {
         isActive: false,
-        plan: 'free',
-        features: [],
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        plan: PremiumPlan.FREE,
+        expiresAt: null,
+        features: []
       },
       settings: {
         dailyGoal: 0,

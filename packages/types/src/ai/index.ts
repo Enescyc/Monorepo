@@ -1,4 +1,4 @@
-import { Difficulty, Language, LearningStyle } from '../settings';
+import { Difficulty, Language, LearningStyle, ProficiencyLevel } from '../settings';
 import { Word, WordType } from '../word';
 
 export interface AIServiceConfig {
@@ -33,7 +33,7 @@ export interface AIProvider {
 export interface WordGenerationContext {
   word: string;
   nativeLanguage: string;
-  targetLanguages: string[];
+  targetLanguages: Language[];
   userId: string;
   learningStyles: LearningStyle[];
   difficulty: Difficulty;

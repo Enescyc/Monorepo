@@ -4,6 +4,7 @@ export interface Achievement {
   description: string;
   points: number;
   icon: string;
+  unlockedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
