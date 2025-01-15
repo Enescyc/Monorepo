@@ -1,21 +1,58 @@
-
-
-import { AuthLayout } from '@/components/auth/auth-layout';
-import { AuthBenefits } from '@/components/auth/auth-benefits';
-import { LoginHeader } from '@/components/auth/login/login-header';
-import { LoginFormWrapper } from '@/components/auth/login/login-form-wrapper';
+'use client'
+import { LoginForm } from '@/components/auth/login-form';
 import { Metadata } from 'next';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Login | VocaBuddy',
-  description: 'Login to your VocaBuddy account',
-};
+
 
 export default function LoginPage() {
   return (
-    <AuthLayout benefits={<AuthBenefits />}>
-      <LoginHeader />
-      <LoginFormWrapper />
-    </AuthLayout>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      {/* Header */}
+      <div className="space-y-2 text-center">
+        <div className="inline-flex items-center justify-center space-x-2 rounded-full bg-primary/10 px-4 py-1.5">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium">Welcome back</span>
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-primary to-blue-600 dark:from-white dark:via-primary dark:to-blue-400 bg-clip-text text-transparent">
+          Sign in to VocaBuddy
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Enter your credentials to access your account
+        </p>
+      </div>
+
+      {/* Form */}
+      <LoginForm />
+
+      {/* Footer */}
+      <div className="space-y-4">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200 dark:border-gray-800" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white dark:bg-gray-950 px-2 text-muted-foreground">
+              New to VocaBuddy?
+            </span>
+          </div>
+        </div>
+        <div className="text-center text-sm">
+          <Link
+            href="/register"
+            className="text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+          >
+            Create an account to start learning
+          </Link>
+        </div>
+      </div>
+    </motion.div>
   );
 } 

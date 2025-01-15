@@ -13,18 +13,18 @@ import { User } from '../users/entities/user.entity';
 export class WordsService {
   constructor(
     @InjectRepository(Word)
-    @Inject() private readonly wordRepository: Repository<Word>,
-    @Inject() private readonly openaiService: OpenAIService,
-    @Inject() private readonly userService: UsersService,
+    private readonly wordRepository: Repository<Word>,
+    private readonly openAIService: OpenAIService,
+    private readonly usersService: UsersService,
   ) {}
 
   public async create(createWordDto: CreateWordDto, userId: string): Promise<Word> {
-    const user : User = await this.userService.findOne(userId);
+    const user : User = await this.usersService.findOne(userId);
     if(!user) {
         throw new NotFoundException('User not found');
     }
   
-    const generatedWord = await this.openaiService.generateWord({
+    const generatedWord = await this.openAIService.generateWord({
         word: createWordDto.word,
         nativeLanguage: createWordDto.nativeLanguage,
         targetLanguages: createWordDto.targetLanguages,

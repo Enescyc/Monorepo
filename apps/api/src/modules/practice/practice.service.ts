@@ -18,6 +18,7 @@ export class PracticeService {
     createPracticeSessionDto: CreatePracticeSessionDto,
     userId: string,
   ): Promise<PracticeSession> {
+    // TODO : GET WORDS FROM WORDS SERVICE AND ADD THEM TO THE SESSION AS PRACTICE WORDS
     const session = this.sessionRepository.create({
       ...createPracticeSessionDto,
       userId,

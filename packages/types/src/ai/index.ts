@@ -1,4 +1,5 @@
-import { Difficulty, Language, LearningStyle, ProficiencyLevel } from '../settings';
+import { Language } from '../language';
+import { Difficulty, LearningStyle } from '../settings';
 import { Word, WordType } from '../word';
 
 export interface AIServiceConfig {

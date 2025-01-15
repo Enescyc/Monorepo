@@ -1,5 +1,4 @@
 import { UserMetadata } from '../user';
-import { Language } from '../language';
 
 export interface UserSettings {
   dailyGoal: number;

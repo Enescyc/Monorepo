@@ -130,7 +130,6 @@ export class AuthController {
     }
   })
   async getCurrentUser(@User() user: UserEntity) {
-    console.log(user);
     return user;
   }
 } 

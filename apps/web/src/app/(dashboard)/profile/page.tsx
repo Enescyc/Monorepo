@@ -1,16 +1,15 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { ProfileHeader } from '@/components/profile/profile-header';
-import { ProfileStats } from '@/components/profile/profile-stats';
-import { ProfileLanguages } from '@/components/profile/profile-languages';
 import { ProfileAchievements } from '@/components/profile/profile-achievements';
 import { ProfileForm } from '@/components/profile/profile-form';
+import { ProfileHeader } from '@/components/profile/profile-header';
+import { ProfileLanguages } from '@/components/profile/profile-languages';
 import { ProfilePremium } from '@/components/profile/profile-premium';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { ProfileStats } from '@/components/profile/profile-stats';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
+import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { Sparkles, Star, Trophy, Users, BookOpen, Target } from 'lucide-react';
 
 export default function ProfilePage() {

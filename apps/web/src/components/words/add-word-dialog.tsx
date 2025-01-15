@@ -1,19 +1,25 @@
 "use client"
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BookOpen, BrainCircuit, Languages, Sparkles, Loader2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
-import { useSession } from 'next-auth/react';
-import { useQueryClient } from '@tanstack/react-query';
-import { Loader2, Sparkles, Languages, BookOpen, BrainCircuit } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { z } from 'zod';
+import { Button } from '../ui/button';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '../ui/dialog';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/form';
+import { Input } from '../ui/input';
+import { Progress } from '../ui/progress';
+import { useToast } from '../ui/use-toast';
 
 const formSchema = z.object({
   word: z.string().min(1, 'Word is required'),

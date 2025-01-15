@@ -29,6 +29,7 @@ export class AuthService {
     }
     const payload = { email: user.email, sub: user.id };
     const { password, ...userWithoutPassword } = user;
+    console.log('userWithoutPassword', userWithoutPassword);
     return {
       access_token: this.jwtService.sign(payload),
       user: userWithoutPassword as any, // TODO: fix this

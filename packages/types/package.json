@@ -12,6 +12,7 @@
   "devDependencies": {
     "@types/next-auth": "^3.15.0",
     "@types/node": "^22.10.5",
+    "@types/react": "^18.2.47",
     "next-auth": "^4.24.11",
     "ts-node": "^10.9.1",
     "typeorm-model-generator": "^0.4.6",

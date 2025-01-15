@@ -124,6 +124,7 @@ export const authOptions: NextAuthOptions = {
               throw new Error(data.message || 'Token refresh failed');
             }
 
+            console.log('data', data);
             token.accessToken = data.access_token;
             token.user = data.user;
           } catch (error) {

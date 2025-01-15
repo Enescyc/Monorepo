@@ -15,28 +15,25 @@ export class AuthMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-        const authHeader = req.headers.authorization;
+      const authHeader = req.headers.authorization;
       if (!authHeader) {
         return next();
       }
 
       const token = authHeader.split(' ')[1];
-      console.log('token', token);
       if (!token) {
         return next();
       }
 
       const secret = this.configService.get<string>('JWT_SECRET');
-      console.log('secret', secret);
       const decoded = this.jwtService.verify(token, { secret });
-      console.log('decoded', decoded);
       if (!decoded) {
         return next();
       }
 
       // Get user from database and attach to request
       const user = await this.usersService.findOne(decoded.sub);
-      console.log('user', user);
+
       if (user) {
         // Create a new user object without the password
         const { password, ...userWithoutPassword } = user;

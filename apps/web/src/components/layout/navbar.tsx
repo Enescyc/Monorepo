@@ -1,5 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import { Icons } from '@/components/ui/icons';
+import { Button } from '@/components/ui/button';
+import { useTheme } from 'next-themes';
+import { Moon, Sun } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard' },
@@ -9,6 +15,8 @@ const navigation = [
 ];
 
 export function Navbar() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4">
@@ -31,13 +39,33 @@ export function Navbar() {
               </div>
             </div>
           </div>
-          <div className="flex items-center">
-            <Link
-              href="/profile"
-              className="p-2 rounded-md hover:bg-accent hover:text-accent-foreground"
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="rounded-full"
             >
-              <Icons.user className="h-5 w-5" />
-            </Link>
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+            >
+              <Link href="/profile">
+                <Icons.user className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="text-sm font-medium"
+            >
+              Sign out
+            </Button>
           </div>
         </div>
       </div>

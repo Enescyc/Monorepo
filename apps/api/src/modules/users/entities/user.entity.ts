@@ -26,7 +26,6 @@ export class User extends BaseEntity {
 
   @Column('jsonb', {
     default: {
-      isActive: false,
       plan: PremiumPlan.FREE,
       expiresAt: null,
       features: [],

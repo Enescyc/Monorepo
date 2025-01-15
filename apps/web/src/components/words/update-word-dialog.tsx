@@ -2,16 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Word, WordType, ProficiencyLevel } from '@vocabuddy/types';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/components/ui/use-toast';
-import { Progress } from '@/components/ui/progress';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { 
   Loader2, 
   Sparkles, 
@@ -29,6 +20,28 @@ import {
   Type
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Word, WordType } from '@vocabuddy/types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/button';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '../ui/dialog';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/form';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
+import { useToast } from '../ui/use-toast';
+import { Progress } from '../ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 
 const formSchema = z.object({
   translations: z.array(z.object({
@@ -167,8 +180,8 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0">
-        <DialogHeader className="p-6 pb-2">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Pencil className="h-5 w-5 text-blue-500" />
             Update Word: <span className="text-blue-500">{word.word}</span>
@@ -177,8 +190,9 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
             Modify translations, definitions, examples, and other details for this word.
           </DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6 px-6 pb-6 overflow-y-auto">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -207,7 +221,6 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
                       Difficulty
                     </FormLabel>
                     <Select
-                      disabled={isLoading}
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
@@ -281,55 +294,60 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
                     Translations
                   </FormLabel>
                   <FormControl>
-                    <div className="space-y-2">
-                      {field.value.map((translation, index) => (
-                        <div
-                          key={index}
-                          className="flex gap-2"
-                        >
-                          <Input
-                            placeholder="Language"
-                            value={translation.language}
-                            onChange={(e) => {
-                              const newTranslations = [...field.value];
-                              newTranslations[index] = {
-                                ...newTranslations[index],
-                                language: e.target.value,
-                              };
-                              field.onChange(newTranslations);
-                            }}
-                            disabled={isLoading}
-                            className="w-1/3"
-                          />
-                          <Input
-                            placeholder="Translation"
-                            value={translation.translation}
-                            onChange={(e) => {
-                              const newTranslations = [...field.value];
-                              newTranslations[index] = {
-                                ...newTranslations[index],
-                                translation: e.target.value,
-                              };
-                              field.onChange(newTranslations);
-                            }}
-                            disabled={isLoading}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            disabled={isLoading}
-                            onClick={() => {
-                              const newTranslations = field.value.filter((_, i) => i !== index);
-                              field.onChange(newTranslations);
-                            }}
-                            className="shrink-0 hover:text-red-500 hover:border-red-500"
+                    <motion.div layout className="space-y-2">
+                      <AnimatePresence mode="popLayout">
+                        {field.value.map((translation, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="flex gap-2"
                           >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                            <Input
+                              placeholder="Language"
+                              value={translation.language}
+                              onChange={(e) => {
+                                const newTranslations = [...field.value];
+                                newTranslations[index] = {
+                                  ...newTranslations[index],
+                                  language: e.target.value,
+                                };
+                                field.onChange(newTranslations);
+                              }}
+                              disabled={isLoading}
+                              className="w-1/3"
+                            />
+                            <Input
+                              placeholder="Translation"
+                              value={translation.translation}
+                              onChange={(e) => {
+                                const newTranslations = [...field.value];
+                                newTranslations[index] = {
+                                  ...newTranslations[index],
+                                  translation: e.target.value,
+                                };
+                                field.onChange(newTranslations);
+                              }}
+                              disabled={isLoading}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              disabled={isLoading}
+                              onClick={() => {
+                                const newTranslations = field.value.filter((_, i) => i !== index);
+                                field.onChange(newTranslations);
+                              }}
+                              className="shrink-0 hover:text-red-500 hover:border-red-500"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
                       <Button
                         type="button"
                         variant="outline"
@@ -343,7 +361,7 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
                         <Plus className="h-4 w-4 mr-2" />
                         Add Translation
                       </Button>
-                    </div>
+                    </motion.div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -361,55 +379,60 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
                     Definitions
                   </FormLabel>
                   <FormControl>
-                    <div className="space-y-2">
-                      {field.value.map((definition, index) => (
-                        <div
-                          key={index}
-                          className="flex gap-2"
-                        >
-                          <Input
-                            placeholder="Part of Speech"
-                            value={definition.partOfSpeech}
-                            onChange={(e) => {
-                              const newDefinitions = [...field.value];
-                              newDefinitions[index] = {
-                                ...newDefinitions[index],
-                                partOfSpeech: e.target.value,
-                              };
-                              field.onChange(newDefinitions);
-                            }}
-                            disabled={isLoading}
-                            className="w-1/3"
-                          />
-                          <Input
-                            placeholder="Meaning"
-                            value={definition.meaning}
-                            onChange={(e) => {
-                              const newDefinitions = [...field.value];
-                              newDefinitions[index] = {
-                                ...newDefinitions[index],
-                                meaning: e.target.value,
-                              };
-                              field.onChange(newDefinitions);
-                            }}
-                            disabled={isLoading}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            disabled={isLoading}
-                            onClick={() => {
-                              const newDefinitions = field.value.filter((_, i) => i !== index);
-                              field.onChange(newDefinitions);
-                            }}
-                            className="shrink-0 hover:text-red-500 hover:border-red-500"
+                    <motion.div layout className="space-y-2">
+                      <AnimatePresence mode="popLayout">
+                        {field.value.map((definition, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="flex gap-2"
                           >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                            <Input
+                              placeholder="Part of Speech"
+                              value={definition.partOfSpeech}
+                              onChange={(e) => {
+                                const newDefinitions = [...field.value];
+                                newDefinitions[index] = {
+                                  ...newDefinitions[index],
+                                  partOfSpeech: e.target.value,
+                                };
+                                field.onChange(newDefinitions);
+                              }}
+                              disabled={isLoading}
+                              className="w-1/3"
+                            />
+                            <Input
+                              placeholder="Meaning"
+                              value={definition.meaning}
+                              onChange={(e) => {
+                                const newDefinitions = [...field.value];
+                                newDefinitions[index] = {
+                                  ...newDefinitions[index],
+                                  meaning: e.target.value,
+                                };
+                                field.onChange(newDefinitions);
+                              }}
+                              disabled={isLoading}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              disabled={isLoading}
+                              onClick={() => {
+                                const newDefinitions = field.value.filter((_, i) => i !== index);
+                                field.onChange(newDefinitions);
+                              }}
+                              className="shrink-0 hover:text-red-500 hover:border-red-500"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
                       <Button
                         type="button"
                         variant="outline"
@@ -423,7 +446,7 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
                         <Plus className="h-4 w-4 mr-2" />
                         Add Definition
                       </Button>
-                    </div>
+                    </motion.div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -441,37 +464,42 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
                     Examples
                   </FormLabel>
                   <FormControl>
-                    <div className="space-y-2">
-                      {field.value.map((example, index) => (
-                        <div
-                          key={index}
-                          className="flex gap-2"
-                        >
-                          <Input
-                            value={example}
-                            onChange={(e) => {
-                              const newExamples = [...field.value];
-                              newExamples[index] = e.target.value;
-                              field.onChange(newExamples);
-                            }}
-                            disabled={isLoading}
-                            className="flex-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            disabled={isLoading}
-                            onClick={() => {
-                              const newExamples = field.value.filter((_, i) => i !== index);
-                              field.onChange(newExamples);
-                            }}
-                            className="shrink-0 hover:text-red-500 hover:border-red-500"
+                    <motion.div layout className="space-y-2">
+                      <AnimatePresence mode="popLayout">
+                        {field.value.map((example, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="flex gap-2"
                           >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                            <Input
+                              value={example}
+                              onChange={(e) => {
+                                const newExamples = [...field.value];
+                                newExamples[index] = e.target.value;
+                                field.onChange(newExamples);
+                              }}
+                              disabled={isLoading}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              disabled={isLoading}
+                              onClick={() => {
+                                const newExamples = field.value.filter((_, i) => i !== index);
+                                field.onChange(newExamples);
+                              }}
+                              className="shrink-0 hover:text-red-500 hover:border-red-500"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
                       <Button
                         type="button"
                         variant="outline"
@@ -485,7 +513,7 @@ export function UpdateWordDialog({ open, onOpenChange, word }: UpdateWordDialogP
                         <Plus className="h-4 w-4 mr-2" />
                         Add Example
                       </Button>
-                    </div>
+                    </motion.div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
