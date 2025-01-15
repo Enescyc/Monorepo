@@ -55,4 +55,21 @@ export enum PracticeSessionType {
   WRITING = 'writing',
   SPEAKING = 'speaking',
   LISTENING = 'listening'
+}
+
+export enum WordSelectionStrategy {
+  // Select words that are due for review based on spaced repetition
+  SPACED_REPETITION = 'SPACED_REPETITION',
+  
+  // Select words with lowest strength/mastery level
+  WEAKEST_WORDS = 'WEAKEST_WORDS',
+  
+  // Select words that have been practiced least recently
+  LEAST_PRACTICED = 'LEAST_PRACTICED',
+  
+  // Select words that have the most errors in practice sessions
+  MOST_ERRORS = 'MOST_ERRORS',
+  
+  // Balanced approach considering multiple factors
+  BALANCED = 'BALANCED'
 } 

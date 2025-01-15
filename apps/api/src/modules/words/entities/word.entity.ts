@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, Index } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { Context, Etymology, Learning, LearningStatus, SynonymsAntonyms, Translation, WordCategory, WordType } from '@vocabuddy/types';
@@ -69,5 +69,6 @@ export class Word extends BaseEntity {
   user: User;
 
   @Column()
+  @Index()
   userId: string;
 } 
