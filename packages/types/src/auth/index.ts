@@ -1,5 +1,4 @@
 import { User } from '../user';
-import type { DefaultSession } from 'next-auth';
 
 declare module 'next-auth' {
   interface Session {
@@ -22,4 +21,4 @@ export interface JwtPayload {
 
 export interface RequestWithUser extends Request {
   user: User;
-} 
+}
